@@ -15,7 +15,12 @@
 :root[data-theme=light]{--bg:#f1f2f6;--card:#fff;--tx:#14151a;--mu:#555b6b;--bd:#d6d9e2;--ac:#12a150}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html{background:var(--bg)}
-html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--tx);font:16px/1.35 -apple-system,system-ui,"Segoe UI",sans-serif;overflow:hidden;position:fixed;inset:0;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+/* iOS PWA fix: 100% can be based on a stale layout viewport in standalone mode,
+   leaving a black gap (WKWebView's native background) above/below the content.
+   100dvh always tracks the true visual viewport, so we use it wherever supported
+   and keep 100% only as a fallback for browsers without dvh support. */
+html,body{margin:0;width:100%;height:100%;min-height:100%;background:var(--bg);color:var(--tx);font:16px/1.35 -apple-system,system-ui,"Segoe UI",sans-serif;overflow:hidden;position:fixed;inset:0;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+@supports (height:100dvh){html,body{height:100dvh;min-height:100dvh}}
 #main{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;background:var(--bg);padding:calc(12px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(var(--nav) + var(--tbarh, 0px) + env(safe-area-inset-bottom) + 16px) calc(14px + env(safe-area-inset-left))}
 h2,h3{margin:.2em 0 .5em}
 .c{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:14px}
@@ -41,7 +46,8 @@ nav button span{font-size:20px}nav button.on{color:var(--ac);font-weight:700}
 #tbar{position:fixed;left:0;right:0;bottom:calc(var(--nav) + env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--ac);padding:8px calc(12px + env(safe-area-inset-right)) 8px calc(12px + env(safe-area-inset-left));display:none;z-index:6}
 #tbar.show{display:block}#tbar.flash{animation:fl .5s 6}@keyframes fl{50%{background:var(--ac)}}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;z-index:9}#modal.show{display:flex}
-.sheet{width:100%;max-height:92dvh;overflow-y:auto;background:var(--card);border-radius:20px 20px 0 0;padding:16px calc(16px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+.sheet{width:100%;max-height:92vh;overflow-y:auto;background:var(--card);border-radius:20px 20px 0 0;padding:16px calc(16px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+@supports (max-height:92dvh){.sheet{max-height:92dvh}}
 #toast{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:90%}#toast.show{opacity:1}
 .set{display:grid;grid-template-columns:22px 1fr 1fr auto auto;gap:6px;align-items:end;margin:6px 0}.set.dn input{border-color:var(--ac)}.set.sk{opacity:.45}
 .setx{display:flex;gap:6px;margin:-2px 0 6px 28px}.setx input{padding:5px 8px;min-height:36px;font-size:16px}.setx input.rpe{max-width:64px;flex:none}
@@ -83,27 +89,37 @@ const EMO=['☀️','💧','🏃','🧘','📖','🍎','🥗','💊','😴','�
    Übungen mit denselben Feldern wie eine Routine-Übung (unit/bw/w/sets/reps).
    Neue Vorlage = neuer Key im Objekt; wird automatisch überall im UI angeboten. */
 const TEMPLATES={
- 'Upper Body':[
-  {name:'Bankdrücken',unit:'kg',bw:'none',w:20,sets:3,reps:8},
-  {name:'Rudern vorgebeugt',unit:'kg',bw:'none',w:20,sets:3,reps:10},
-  {name:'Schulterdrücken',unit:'kg',bw:'none',w:10,sets:3,reps:10},
-  {name:'Klimmzüge',unit:'kg',bw:'plus',w:0,sets:3,reps:8}
+ 'Push Day':[
+  {name:'Dips',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Decline Diamond Push-Ups',unit:'kg',bw:'bw',w:0,sets:2,reps:10},
+  {name:'Lateral Raises',unit:'kg',bw:'none',w:0,sets:2,reps:10},
+  {name:'Elevated Pike Push-Ups',unit:'kg',bw:'bw',w:0,sets:2,reps:10}
  ],
- 'Lower Body':[
-  {name:'Kniebeuge',unit:'kg',bw:'none',w:30,sets:4,reps:8},
-  {name:'Rumänisches Kreuzheben',unit:'kg',bw:'none',w:30,sets:3,reps:10},
-  {name:'Ausfallschritte',unit:'kg',bw:'none',w:10,sets:3,reps:10},
-  {name:'Wadenheben',unit:'kg',bw:'none',w:20,sets:3,reps:15}
+ 'Pull Day':[
+  {name:'Pull-Ups',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Chin-Ups',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Single-Arm Supported Row',unit:'kg',bw:'none',w:0,sets:2,reps:10},
+  {name:'Reverse Flys (W-Shape)',unit:'kg',bw:'none',w:0,sets:2,reps:10},
+  {name:'Reverse Curls',unit:'kg',bw:'none',w:0,sets:2,reps:10}
  ],
- 'Push':[
-  {name:'Bankdrücken',unit:'kg',bw:'none',w:20,sets:4,reps:8},
-  {name:'Schulterdrücken',unit:'kg',bw:'none',w:10,sets:3,reps:10},
-  {name:'Trizepsdrücken am Kabel',unit:'kg',bw:'none',w:10,sets:3,reps:12}
+ 'Legs Day':[
+  {name:'Bulgarian Split Squats (Hand-Supported)',unit:'kg',bw:'bw',w:0,sets:2,reps:10},
+  {name:'Single-Leg RDL (Hamstrings)',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Standing Calf Raises',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Hanging Leg Raises',unit:'kg',bw:'bw',w:0,sets:2,reps:10}
  ],
- 'Pull':[
-  {name:'Klimmzüge',unit:'kg',bw:'plus',w:0,sets:3,reps:8},
-  {name:'Rudern vorgebeugt',unit:'kg',bw:'none',w:20,sets:3,reps:10},
-  {name:'Bizepscurls',unit:'kg',bw:'none',w:10,sets:3,reps:12}
+ 'Lower Day':[
+  {name:'Bulgarian Split Squats',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Single-Leg RDL',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Standing Calf Raises',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Hanging Leg Raises',unit:'kg',bw:'bw',w:0,sets:2,reps:10}
+ ],
+ 'Upper Day':[
+  {name:'Pull-Ups',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Dips',unit:'kg',bw:'plus',w:0,sets:2,reps:10},
+  {name:'Lateral Raises',unit:'kg',bw:'none',w:0,sets:2,reps:10},
+  {name:'Overhead Triceps Extension',unit:'kg',bw:'none',w:0,sets:2,reps:10},
+  {name:'Chin-Ups',unit:'kg',bw:'plus',w:0,sets:2,reps:10}
  ]
 };
 function def(){return{version:5,settings:{unit:'kg',theme:'dark',rest:90,bw:75,goal:4,cloud:{provider:'webdav',url:'',user:'',pass:'',auto:false,last:0}},routines:[],workoutLogs:[],habits:{list:[],log:{}},food:{},water:{},sleep:{},steps:{},bodyweight:{},calendar:{},activeWorkout:null,timer:null}}
@@ -189,7 +205,10 @@ function updateRmOut(){const o=$('rmOut');if(o)o.innerHTML=rmOutput(gu())}
 function weekStart(){const d=new Date();d.setDate(d.getDate()-wdi(d));return dk(d)}
 const hv=(k,id)=>(S.habits.log[k]||{})[id];
 const hdone=(k)=>Object.values(S.habits.log[k]||{}).some(v=>v);
-function weekCount(id){const ws=weekStart();let n=0;for(const k in S.habits.log){if(k>=ws&&k<=dk()&&S.habits.log[k]&&S.habits.log[k][id])n++}return n}
+function weekCount(id){const ws=weekStart(),x=S.habits.list.find(h=>h.id===id);if(!x)return 0;let n=0;
+ for(const k in S.habits.log){if(k<ws||k>dk())continue;const v=S.habits.log[k]&&S.habits.log[k][id];if(!v)continue;
+  if(x.unit!=='check'&&x.target>0){if(hinfo(x,v).ok)n++}else n++}
+ return n}
 const fmtn=n=>(+n||0).toLocaleString('de-DE',{maximumFractionDigits:2});
 function hinfo(x,v){const g=+x.target||0,p=g>0?Math.min(100,(+v||0)/g*100):0,ok=g>0&&(+v||0)>=g;return{p,ok,txt:`${ok?'✅ ':''}${fmtn(v)} / ${fmtn(g)} ${UL[x.unit]||''} (${Math.round(p)} %)`}}
 function hupd(id){const x=S.habits.list.find(y=>y.id===id);if(!x)return;
@@ -197,7 +216,7 @@ function hupd(id){const x=S.habits.list.find(y=>y.id===id);if(!x)return;
  if(i&&l){const n=hinfo(x,hv(ui.hd,id));i.style.width=n.p+'%';i.style.background=n.ok?'var(--ac)':'var(--yl)';l.textContent=n.txt}
  if(x.freq==='weekly'){const wEl=$('wc'+id);if(wEl){const wk=weekCount(id);wEl.textContent=wk+'/'+x.wtarget+' diese Woche'+(wk>=x.wtarget?' ✅':'')}}}
 function streak(ok,skip){const d=new Date();let n=0;for(let i=0;i<400;i++){if(ok(dk(d)))n++;else if(i>0&&!(skip&&skip(d)))break;d.setDate(d.getDate()-1)}return n}
-const schedRest=d=>S.routines.some(r=>(r.rest||[]).includes(wdi(d)));
+const schedRest=d=>{const wd=wdi(d);return S.routines.some(r=>(r.rest||[]).includes(wd))&&!S.routines.some(r=>r.days.includes(wd))};
 const restDay=d=>schedRest(d)||(S.routines.length>0&&!S.routines.some(r=>r.days.includes(wdi(d))));
 function st(k){const d=new Date(k+'T12:00:00'),wd=wdi(d),pl=S.routines.some(r=>r.days.includes(wd));
  if(S.workoutLogs.some(l=>l.date===k))return'g';
