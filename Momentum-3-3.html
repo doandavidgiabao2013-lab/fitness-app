@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Momentum">
+<meta name="theme-color" content="#0e0f13">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Momentum%22%2C%22short_name%22%3A%22Momentum%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%230e0f13%22%2C%22theme_color%22%3A%22%230e0f13%22%7D">
+<title>Momentum</title>
+<style>
+:root{--bg:#0e0f13;--card:#1a1c23;--tx:#f2f3f7;--mu:#a3a8b6;--ac:#3ddc84;--bd:#2c2f3a;--rd:#ff5d5d;--bl:#4c9dff;--yl:#ffc94d;--nav:58px}
+:root[data-theme=light]{--bg:#f1f2f6;--card:#fff;--tx:#14151a;--mu:#555b6b;--bd:#d6d9e2;--ac:#12a150}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100dvh;width:100%;background:var(--bg);color:var(--tx);font:16px/1.35 -apple-system,system-ui,"Segoe UI",sans-serif;overflow:hidden;position:fixed;inset:0;overscroll-behavior:none}
+#main{height:100dvh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:calc(12px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(var(--nav) + env(safe-area-inset-bottom) + 16px) calc(14px + env(safe-area-inset-left))}
+h2,h3{margin:.2em 0 .5em}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:14px}
+.t{font-size:11px;color:var(--mu);font-weight:600;letter-spacing:.08em;margin-bottom:8px}
+.tm{font-size:11px;font-weight:600;color:var(--mu);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:1px 6px;margin-left:6px;white-space:nowrap}
+.mu{color:var(--mu)}.row{display:flex;gap:8px;align-items:center}.sp{justify-content:space-between}.w{flex-wrap:wrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.big{font-size:56px;font-weight:800;letter-spacing:-2px;line-height:1}
+.b{background:var(--ac);color:#04140a;border:0;border-radius:12px;padding:10px 14px;font-weight:700;font-size:15px;min-height:44px;min-width:44px;cursor:pointer}
+.b2{background:var(--bd);color:var(--tx)}.bd{background:var(--rd);color:#fff}.sm{padding:6px 10px;min-height:36px;min-width:36px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--bl);outline-offset:1px}
+input,select,textarea{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font:16px inherit;min-height:44px}
+label{display:block;min-width:0}label>small{display:block;color:var(--mu);font-size:12px;margin:8px 0 3px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}.tabs .b{flex:1;white-space:nowrap}
+.tabs .b:not(.on){background:var(--card);color:var(--mu);border:1px solid var(--bd)}
+.bar{height:10px;background:var(--bd);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac);width:0}
+.acc{color:var(--ac)}.val{font-size:22px;font-weight:800;min-width:70px;text-align:center}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--bd);height:calc(var(--nav) + env(safe-area-inset-bottom));padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);z-index:5}
+nav button{flex:1;background:none;border:0;color:var(--mu);font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0}
+nav button span{font-size:20px}nav button.on{color:var(--ac);font-weight:700}
+#tbar{position:fixed;left:0;right:0;bottom:calc(var(--nav) + env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--ac);padding:8px calc(12px + env(safe-area-inset-right)) 8px calc(12px + env(safe-area-inset-left));display:none;z-index:6}
+#tbar.show{display:block}#tbar.flash{animation:fl .5s 6}@keyframes fl{50%{background:var(--ac)}}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;z-index:9}#modal.show{display:flex}
+.sheet{width:100%;max-height:92dvh;overflow-y:auto;background:var(--card);border-radius:20px 20px 0 0;padding:16px calc(16px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+#toast{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:90%}#toast.show{opacity:1}
+.set{display:grid;grid-template-columns:22px 1fr 1fr auto auto;gap:6px;align-items:end;margin:6px 0}.set.dn input{border-color:var(--ac)}.set.sk{opacity:.45}
+.setx{display:flex;gap:6px;margin:-2px 0 6px 28px}.setx input{padding:5px 8px;min-height:36px;font-size:16px}.setx input.rpe{max-width:64px;flex:none}
+.day-b{flex:1;padding:10px 0}.day-b:not(.on){background:var(--bd);color:var(--tx)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cal b{text-align:center;font-size:12px;color:var(--mu)}
+.cd{aspect-ratio:1;border-radius:10px;border:2px solid var(--bd);background:none;color:var(--tx);font-weight:600;padding:0;min-width:0}
+.cd.g{background:var(--ac);color:#04140a;border-color:var(--ac)}.cd.b{background:var(--bl);color:#fff;border-color:var(--bl)}.cd.y{background:var(--yl);color:#221900;border-color:var(--yl)}.cd.r{background:var(--rd);color:#fff;border-color:var(--rd)}.cd.today{outline:2px solid var(--tx)}
+.fr{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)}.fr:last-child{border-bottom:0;padding-bottom:0}.fr:first-child{padding-top:0}.fr span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.emo{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}.emo button{font-size:22px;background:var(--bg);border:2px solid transparent;border-radius:10px;min-height:40px;padding:0}.emo button.on{border-color:var(--ac)}
+button,.day-b,.cd,nav button,.tabs .b{transition:transform .1s ease}
+button:active,.day-b:active,.cd:active,nav button:active{transform:scale(.96)}
+.big,.val,input,.set input,#tt,.tm{font-variant-numeric:tabular-nums}
+.day-b.rest{background:var(--bl);color:#fff}
+.empty{text-align:center;padding:34px 10px;color:var(--mu)}.empty .ic{font-size:34px;display:block;margin-bottom:8px;opacity:.7}
+.hint{font-size:12px;color:var(--ac);background:rgba(61,220,132,.1);border-radius:8px;padding:6px 8px;margin:4px 0}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.wk{font-size:12px;color:var(--mu);margin-left:4px}
+details.gd summary{cursor:pointer;font-weight:700;padding:6px 0}details.gd p,details.gd li{color:var(--mu);font-size:14px}details.gd{border-bottom:1px solid var(--bd);padding:4px 0}details.gd:last-child{border-bottom:0}
+</style>
+</head>
+<body>
+<div id="main" role="main"></div>
+<div id="tbar" role="timer" aria-live="off"></div>
+<nav id="nav" aria-label="Hauptnavigation"></nav>
+<div id="modal" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+"use strict";
+const KEY='momentum_v2',$=id=>document.getElementById(id),K=2.20462;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0'),dk=d=>{d=d||new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6),wdi=d=>(d.getDay()+6)%7;
+const DAYS=['Mo','Di','Mi','Do','Fr','Sa','So'],DAYF=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+const MEALS=['Breakfast','Lunch','Dinner','Snack'],CATS=['Morning','Afternoon','Evening','Meal','Anytime','Weekly'];
+const STEP={l:.25,ml:250,steps:1000,min:5,pages:5,km:1},UL={l:'l',ml:'ml',steps:'Schritte',min:'min',pages:'Seiten',km:'km'};
+const EMO=['☀️','💧','🏃','🧘','📖','🍎','🥗','💊','😴','🚶','🧠','✍️','🦷','🚿','🛏️','🎯','💪','🚴','🏊','🥤','🍳','🌙','☕','🧹'];
+function def(){return{version:5,settings:{unit:'kg',theme:'dark',rest:90,bw:75,goal:4,cloud:{provider:'webdav',url:'',user:'',pass:'',auto:false,last:0}},routines:[],workoutLogs:[],habits:{list:[],log:{}},food:{},water:{},sleep:{},steps:{},bodyweight:{},calendar:{},activeWorkout:null,timer:null}}
+const isO=x=>x&&typeof x==='object'&&!Array.isArray(x),arrO=a=>Array.isArray(a)?a.filter(isO):[],num=(v,d)=>{if(typeof v==='string')v=v.trim().replace(',','.');v=parseFloat(v);return isFinite(v)?v:d},oneOf=(v,l,d)=>l.includes(v)?v:d,DRE=/^\d{4}-\d{2}-\d{2}$/;
+const bx=e=>({name:String(e.name||'Übung'),unit:oneOf(e.unit,['kg','lbs','reps','none'],'kg'),bw:oneOf(e.bw,['none','bw','plus','minus'],'none')});
+const wr=x=>{const rpe=num(x.rpe,NaN);return{w:Math.max(0,num(x.w,0)),r:Math.max(0,parseInt(x.r)||0),rpe:isFinite(rpe)?Math.min(10,Math.max(0,Math.round(rpe*2)/2)):null,note:String(x.note||'').slice(0,140),done:x.done!==false}};
+function migrate(o){const d=def();if(!isO(o))return d;const s={...d},st=isO(o.settings)?o.settings:{};
+ s.settings={unit:oneOf(st.unit,['kg','lbs'],'kg'),theme:oneOf(st.theme,['dark','light'],'dark'),rest:Math.min(600,Math.max(5,parseInt(st.rest)||90)),bw:Math.max(0,num(st.bw,75)),goal:Math.min(14,Math.max(1,parseInt(st.goal)||4)),
+  cloud:(c=>({provider:'webdav',url:String(c.url||''),user:String(c.user||''),pass:String(c.pass||''),auto:!!c.auto,last:Math.max(0,num(c.last,0))}))(isO(st.cloud)?st.cloud:{})};
+ s.routines=arrO(o.routines).map(r=>{const days=(Array.isArray(r.days)?r.days:[]).filter(n=>Number.isInteger(n)&&n>=0&&n<=6);const rest=(Array.isArray(r.rest)?r.rest:[]).filter(n=>Number.isInteger(n)&&n>=0&&n<=6&&!days.includes(n));return{id:String(r.id||uid()),name:String(r.name||'Routine'),days,rest,exercises:arrO(r.exercises).map(e=>({...bx(e),id:String(e.id||uid()),w:Math.max(0,num(e.w,0)),sets:Math.max(1,parseInt(e.sets)||1),reps:Math.max(0,parseInt(e.reps)||0)}))}});
+ s.workoutLogs=arrO(o.workoutLogs).map(l=>({id:String(l.id||uid()),date:DRE.test(l.date)?l.date:dk(),name:String(l.name||'Workout'),start:num(l.start,0),end:num(l.end,0),exs:arrO(l.exs).map(e=>({...bx(e),sets:arrO(e.sets).map(wr)}))}));
+ const h=isO(o.habits)?o.habits:{list:o.habits};
+ s.habits={list:arrO(h.list).map(x=>({id:String(x.id||uid()),name:String(x.name||'Habit'),emoji:String(x.emoji||'✅'),cat:oneOf(x.cat,CATS,'Anytime'),time:/^\d{2}:\d{2}$/.test(x.time)?x.time:'',target:Math.max(0,num(x.target,0)),unit:oneOf(x.unit,['check','none',...Object.keys(STEP)],'check'),freq:oneOf(x.freq,['daily','weekly'],'daily'),wtarget:Math.min(7,Math.max(1,parseInt(x.wtarget)||3))})),log:{}};
+ if(isO(h.log))Object.keys(h.log).forEach(k=>{if(isO(h.log[k]))s.habits.log[k]=h.log[k]});
+ s.food={};if(isO(o.food))Object.keys(o.food).forEach(k=>{const v=o.food[k];if(!isO(v))return;s.food[k]={};MEALS.forEach(m=>{s.food[k][m]=arrO(v[m]).map(y=>({id:String(y.id||uid()),name:String(y.name||''),g:num(y.g,0),done:true}))})});
+ ['water','sleep','steps'].forEach(k=>{s[k]={};if(isO(o[k]))Object.keys(o[k]).forEach(kk=>{if(!DRE.test(kk))return;const n=num(o[k][kk],NaN);if(isFinite(n))s[k][kk]=Math.max(0,n)})});
+ s.bodyweight={};if(isO(o.bodyweight))Object.keys(o.bodyweight).forEach(k=>{if(!DRE.test(k))return;const n=num(o.bodyweight[k],NaN);if(isFinite(n))s.bodyweight[k]=Math.max(0,n)});
+ if(!Object.keys(s.bodyweight).length&&s.settings.bw>0)s.bodyweight[dk()]=s.settings.bw;
+ s.calendar={};if(isO(o.calendar))Object.keys(o.calendar).forEach(k=>{if(isO(o.calendar[k]))s.calendar[k]={note:String(o.calendar[k].note||'')}});
+ const a=o.activeWorkout;s.activeWorkout=isO(a)&&Array.isArray(a.exs)?{date:DRE.test(a.date)?a.date:dk(),start:num(a.start,Date.now()),rid:String(a.rid||'free'),name:String(a.name||'Workout'),exs:arrO(a.exs).map(e=>({...bx(e),sets:arrO(e.sets).map(x=>({...wr(x),done:!!x.done,skip:!!x.skip}))}))}:null;
+ const t=o.timer;s.timer=isO(t)&&isFinite(t.end)&&(t.paused!=null||Date.now()-t.end<=10000)?{orig:Math.max(1000,num(t.orig,90000)),dur:Math.max(1000,num(t.dur,90000)),end:t.end,paused:t.paused!=null?Math.max(0,num(t.paused,0)):null,fired:!!t.fired}:null;
+ s.version=5;return s}
+let S;try{S=migrate(JSON.parse(localStorage.getItem(KEY)))}catch(e){S=def()}
+/* Debounce-Helfer: verzögert einen Funktionsaufruf um `ms`, mehrfache
+   Aufrufe innerhalb des Zeitfensters werden zu einem zusammengefasst.
+   Wird für "geschwätzige" Inputs (Gewicht/Reps/Habit-Wert) genutzt, damit
+   nicht bei jedem Tastendruck geschrieben wird. */
+function debounce(fn,ms){let t=null;const d=(...a)=>{clearTimeout(t);t=setTimeout(()=>{t=null;fn(...a)},ms)};d.flush=()=>{if(t){clearTimeout(t);t=null;fn()}};return d}
+/* Platzhalter für optionalen Cloud-Sync (WebDAV o.ä.). In dieser Version
+   ist noch keine echte Synchronisierung implementiert - die Funktion ist
+   bewusst ein no-op, damit save() nicht mit einem ReferenceError abstürzt. */
+function cloudAutoPush(){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Speichern fehlgeschlagen')}cloudAutoPush()};
+const dsave=debounce(save,300);
+let tId=0;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tId);tId=setTimeout(()=>t.classList.remove('show'),2400)}
+const ui={tab:'home',sub:'today',hs:'habits',cm:0,days:[],rest:[],rname:'',emo:'☀️',fd:dk(),hd:dk(),freq:'daily',rm:{w:'',r:''}};
+const gu=()=>S.settings.unit==='lbs'?'lbs':'kg',cv=(kg,u)=>Math.round((u==='lbs'?kg*K:kg)*10)/10;
+/* fk() wandelt einen Eingabefeld-String in kg um. Wichtig: bei leerer
+   oder ungültiger Eingabe (z.B. während des Tippens) wird NICHT mehr 0
+   zurückgegeben, sondern null - der Aufrufer behält dann einfach den
+   zuletzt gültigen Wert bei, statt ihn versehentlich zu überschreiben. */
+const fk=(v,u)=>{const s=String(v==null?'':v).trim().replace(',','.');if(s==='')return null;const n=parseFloat(s);if(!isFinite(n)||n<0)return null;return u==='lbs'?n/K:n};
+const fmt=n=>+(+n).toFixed(2);
+function curBW(){const ks=Object.keys(S.bodyweight||{}).sort();return ks.length?S.bodyweight[ks[ks.length-1]]:(+S.settings.bw||75)}
+function load(e,w){const b=+curBW()||0;w=+w||0;return e.bw==='bw'?b:e.bw==='plus'?b+w:e.bw==='minus'?Math.max(0,b-w):(e.unit==='kg'||e.unit==='lbs')?w:0}
+const volOf=l=>(l.exs||[]).reduce((a,e)=>a+(e.sets||[]).reduce((b,s)=>b+(s.done!==false?load(e,s.w)*(+s.r||0):0),0),0);
+function weekKeyOf(k){const x=new Date(k+'T12:00:00');x.setDate(x.getDate()-wdi(x));return dk(x)}
+function last8Weeks(){const out=[],n=new Date();n.setDate(n.getDate()-wdi(n));for(let i=7;i>=0;i--){const d=new Date(n);d.setDate(d.getDate()-i*7);out.push(dk(d))}return out}
+function weeklyVolSeries(){const wks=last8Weeks(),map={};wks.forEach(w=>map[w]=0);S.workoutLogs.forEach(l=>{const wk=weekKeyOf(l.date);if(wk in map)map[wk]+=volOf(l)});return wks.map(w=>map[w])}
+function bwSeries(){const ks=Object.keys(S.bodyweight).sort().slice(-14);return ks.map(k=>({d:k,v:S.bodyweight[k]}))}
+function svgLine(vals,fmtFn){const w=300,h=100,pad=10,n=vals.length;if(n<2)return'';const mn=Math.min(...vals),mx=Math.max(...vals),rg=mx-mn||1;
+ const pts=vals.map((v,i)=>[pad+i*(w-2*pad)/(n-1),h-pad-((v-mn)/rg)*(h-2*pad)]);
+ const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+ const last=vals[vals.length-1];
+ return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:100px;overflow:visible" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="var(--ac)" stroke-width="2" vector-effect="non-scaling-stroke"/>${pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="${i===pts.length-1?'var(--tx)':'var(--ac)'}"/>`).join('')}</svg><div class="mu" style="font-size:12px;text-align:right">aktuell: ${fmtFn?fmtFn(last):last}</div>`}
+/* Wie svgLine, aber die X-Position jedes Punkts richtet sich nach dem
+   tatsächlichen zeitlichen Abstand der Datumswerte (statt starr nach
+   Array-Index). Damit stauchen/strecken sich z.B. Körpergewicht-Einträge
+   mit unregelmäßigen Abständen korrekt auf der Zeitachse. */
+function svgLineDated(points,fmtFn){const w=300,h=100,pad=10,n=points.length;if(n<2)return'';
+ const t0=new Date(points[0].d+'T12:00:00').getTime(),tN=new Date(points[n-1].d+'T12:00:00').getTime(),span=(tN-t0)||1;
+ const vals=points.map(p=>p.v),mn=Math.min(...vals),mx=Math.max(...vals),rg=mx-mn||1;
+ const pts=points.map(p=>{const tt=(new Date(p.d+'T12:00:00').getTime()-t0)/span;return[pad+tt*(w-2*pad),h-pad-((p.v-mn)/rg)*(h-2*pad)]});
+ const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+ const last=vals[vals.length-1];
+ return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:100px;overflow:visible" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="var(--ac)" stroke-width="2" vector-effect="non-scaling-stroke"/>${pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="${i===pts.length-1?'var(--tx)':'var(--ac)'}"/>`).join('')}</svg><div class="mu" style="font-size:12px;text-align:right">aktuell: ${fmtFn?fmtFn(last):last}</div>`}
+function lastEx(name){for(let i=S.workoutLogs.length-1;i>=0;i--){const e=(S.workoutLogs[i].exs||[]).find(x=>x.name===name&&(x.sets||[]).length);if(e)return e}return null}
+function overloadHint(e){const p=lastEx(e.name);if(!p||!p.sets.length)return'';const allDone=p.sets.every(s=>s.done!==false),top=p.sets.reduce((a,s)=>load(p,s.w)>load(p,a.w)?s:a,p.sets[0]),u=gu(),lw=load(p,top.w);
+ if(!allDone)return`Letztes Mal: ${p.sets.length}×${top.r} @ ${lw>0?cv(lw,u)+' '+u:'BW'} · nicht alle Sätze geschafft – Gewicht halten`;
+ if(lw>0)return`Letztes Mal: ${p.sets.length}×${top.r} @ ${cv(lw,u)} ${u} · Vorschlag: +${u==='kg'?'2.5':'5'} ${u} oder +1 Wdh`;
+ return`Letztes Mal: ${p.sets.length}×${top.r} · Vorschlag: +1–2 Wdh`}
+const epley=(w,r)=>w*(1+r/30),brzycki=(w,r)=>r>=37?w:w*36/(37-r);
+const RM_PCT=[100,95,90,85,80,75,70,65,60,55,50];
+/* Baut das Ergebnis (e1RM + Prozent-Tabelle) des 1RM-Rechners aus dem
+   aktuellen ui.rm-Zustand. Wird sowohl beim ersten Rendern des
+   Progress-Tabs als auch bei jeder Eingabe (ohne kompletten Re-Render,
+   siehe updateRmOut) aufgerufen. */
+function rmOutput(u){
+ const w=fk(ui.rm.w,u),reps=Math.max(0,parseInt(ui.rm.r)||0);
+ if(w==null||w<=0||reps<=0)return'<div class="mu">Gewicht und Wiederholungen eingeben.</div>';
+ const oneRM=epley(w,reps);
+ const rows=RM_PCT.map(p=>`<div class="fr"><span>${p}%</span><span class="mu">${cv(oneRM*p/100,u)} ${u}</span></div>`).join('');
+ return`<div class="val" style="text-align:left;margin:6px 0 2px">${cv(oneRM,u)} ${u} <span class="mu" style="font-size:12px;font-weight:400">geschätztes 1RM</span></div>${rows}`}
+function updateRmOut(){const o=$('rmOut');if(o)o.innerHTML=rmOutput(gu())}
+function weekStart(){const d=new Date();d.setDate(d.getDate()-wdi(d));return dk(d)}
+const hv=(k,id)=>(S.habits.log[k]||{})[id];
+const hdone=(k)=>Object.values(S.habits.log[k]||{}).some(v=>v);
+function weekCount(id){const ws=weekStart();let n=0;for(const k in S.habits.log){if(k>=ws&&k<=dk()&&S.habits.log[k]&&S.habits.log[k][id])n++}return n}
+const fmtn=n=>(+n||0).toLocaleString('de-DE',{maximumFractionDigits:2});
+function hinfo(x,v){const g=+x.target||0,p=g>0?Math.min(100,(+v||0)/g*100):0,ok=g>0&&(+v||0)>=g;return{p,ok,txt:`${ok?'✅ ':''}${fmtn(v)} / ${fmtn(g)} ${UL[x.unit]||''} (${Math.round(p)} %)`}}
+function hupd(id){const x=S.habits.list.find(y=>y.id===id);if(!x)return;
+ const i=$('hb'+id),l=$('hl'+id);
+ if(i&&l){const n=hinfo(x,hv(ui.hd,id));i.style.width=n.p+'%';i.style.background=n.ok?'var(--ac)':'var(--yl)';l.textContent=n.txt}
+ if(x.freq==='weekly'){const wEl=$('wc'+id);if(wEl){const wk=weekCount(id);wEl.textContent=wk+'/'+x.wtarget+' diese Woche'+(wk>=x.wtarget?' ✅':'')}}}
+function streak(ok,skip){const d=new Date();let n=0;for(let i=0;i<400;i++){if(ok(dk(d)))n++;else if(i>0&&!(skip&&skip(d)))break;d.setDate(d.getDate()-1)}return n}
+const schedRest=d=>S.routines.some(r=>(r.rest||[]).includes(wdi(d)));
+const restDay=d=>schedRest(d)||(S.routines.length>0&&!S.routines.some(r=>r.days.includes(wdi(d))));
+function st(k){const d=new Date(k+'T12:00:00'),wd=wdi(d),pl=S.routines.some(r=>r.days.includes(wd));
+ if(S.workoutLogs.some(l=>l.date===k))return'g';
+ if(hdone(k)||(S.activeWorkout&&S.activeWorkout.date===k))return'y';
+ if(schedRest(d))return'b';
+ if(k<dk()&&pl)return'r';
+ return'n'}
+/* ---------- Views ---------- */
+function vHome(){const t=dk(),wd=wdi(new Date()),rs=S.routines.filter(r=>r.days.includes(wd)),done=S.workoutLogs.some(l=>l.date===t),isRest=schedRest(new Date());
+ let today;
+ if(S.activeWorkout)today=`<b>Workout läuft: ${esc(S.activeWorkout.name)}</b><div class="row w" style="margin-top:8px"><button class="b" data-action="sub" data-id="log" data-tab="workouts">Fortsetzen</button></div>`;
+ else if(rs.length)today=`<b>${DAYS[wd]} Today: ${esc(rs.map(r=>r.name).join(' + '))} Workout ${done?'✅':''}</b><div class="row w" style="margin-top:8px">${rs.map(r=>`<button class="b" data-action="start" data-id="${r.id}">▶ ${esc(r.name)} starten</button>`).join('')}</div>`;
+ else if(isRest)today=`<b>🛌 Geplanter Ruhetag</b><p class="mu" style="margin:4px 0 0">Heute ist laut Routine kein Training vorgesehen – gute Erholung!</p>`;
+ else today=`<b>Kein Workout gestartet</b><p class="mu" style="margin:4px 0 10px">Wähle eine Routine oder leg los</p><button class="b" data-action="nav" data-id="workouts">Zum Workout-Tab</button>`;
+ const ws=weekStart(),wc=S.workoutLogs.filter(l=>l.date>=ws).length,goal=Math.max(1,+S.settings.goal||4),w=S.water[t]||0,sl=S.sleep[t]||0,sp=S.steps[t]||0;
+ const ws1=streak(k=>S.workoutLogs.some(l=>l.date===k),restDay),hs=streak(hdone);
+ return`<div class="row sp"><div><h2 style="margin:0;font-size:26px">Momentum<span class="acc">.</span></h2><div class="mu">Guten Tag 👋</div></div><button class="b b2" data-action="gear" aria-label="Einstellungen">⚙️</button></div>
+ <div style="margin:14px 0 18px"><div class="big" id="clk"></div><div class="mu" id="dt"></div></div>
+ <div class="c"><div class="t">HEUTE</div>${today}</div>
+ <div class="g2"><div class="c"><div class="t">🔥 WORKOUT-STREAK</div><div class="val" style="text-align:left">${ws1} Tage</div></div><div class="c"><div class="t">✅ HABIT-STREAK</div><div class="val" style="text-align:left">${hs} Tage</div></div></div>
+ <div class="c"><div class="row sp"><div class="t">WOCHENZIEL</div><b>${wc}/${goal}</b></div><div class="bar"><i style="width:${Math.min(100,wc/goal*100)}%"></i></div></div>
+ <div class="c"><div class="t">💧 WASSER</div><div class="row sp"><button class="b b2" data-action="water" data-id="-0.25" aria-label="0,25 Liter weniger">−</button><div class="val" id="valWater">${fmt(w)} l</div><button class="b" data-action="water" data-id="0.25" aria-label="0,25 Liter mehr">+</button></div></div>
+ <div class="c"><div class="t">😴 SCHLAF</div><div class="row sp"><button class="b b2" data-action="sleep" data-id="-1" aria-label="Eine Stunde weniger">−</button><div class="val" id="valSleep">${sl} Std</div><button class="b" data-action="sleep" data-id="1" aria-label="Eine Stunde mehr">+</button></div></div>
+ <div class="c"><div class="t">👣 SCHRITTE <span class="mu" style="font-weight:400">(manuell oder Health-Sync)</span></div><div class="row sp"><button class="b b2" data-action="steps" data-id="-500" aria-label="500 Schritte weniger">−</button><div class="val" id="valSteps">${fmtn(sp)}</div><button class="b" data-action="steps" data-id="500" aria-label="500 Schritte mehr">+</button></div></div>`}
+function exLine(e){const u=e.unit,wl=e.bw==='bw'?'BW':e.bw==='plus'?`BW + ${cv(e.w,u)} ${u==='lbs'?'lbs':'kg'}`:e.bw==='minus'?`BW - ${cv(e.w,u)} ${u==='lbs'?'lbs':'kg'}`:(u==='kg'||u==='lbs')?`${cv(e.w,u)} ${u}`:u==='reps'?'Reps':'';return`${e.sets}×${e.reps} ${wl}`}
+function vWork(){const tabs=[['today','Today Workout'],['log','Active Log'],['routines','Routines'],['history','History']];
+ let h=`<h2>Workouts</h2><div class="tabs">${tabs.map(t=>`<button class="b sm ${ui.sub===t[0]?'on':''}" data-action="sub" data-id="${t[0]}">${t[1]}</button>`).join('')}</div>`;
+ if(ui.sub==='today'){const rs=S.routines.filter(r=>r.days.includes(wdi(new Date())));
+  h+=rs.length?rs.map(r=>`<div class="c"><b>${esc(r.name)}</b>${r.exercises.map(e=>`<div class="mu">${esc(e.name)} – ${exLine(e)}</div>`).join('')||'<div class="mu">Noch keine Übungen</div>'}<button class="b" style="margin-top:8px" data-action="start" data-id="${r.id}">▶ Starten</button></div>`).join(''):`<div class="c">Heute ist keine Routine geplant.<div class="row w" style="margin-top:8px"><button class="b" data-action="start" data-id="free">Freies Workout</button><button class="b b2" data-action="sub" data-id="routines">Routinen</button></div></div>`}
+ if(ui.sub==='log'){const a=S.activeWorkout;
+  if(!a)h+=`<div class="c empty"><span class="ic">🏋️</span>Kein aktives Workout.<div style="margin-top:10px"><button class="b" data-action="start" data-id="free">Freies Workout starten</button></div></div>`;
+  else h+=`<div class="c"><b>${esc(a.name)}</b> <span class="mu">${a.date}</span></div>`+a.exs.map((e,i)=>{const u=e.unit,hw=(u==='kg'||u==='lbs')||e.bw==='plus'||e.bw==='minus',wl=e.bw==='plus'?`Zusatz (${u==='lbs'?'lbs':'kg'})`:e.bw==='minus'?`Abzug (${u==='lbs'?'lbs':'kg'})`:`Gewicht (${u})`,hint=overloadHint(e);
+   return`<div class="c"><b>${esc(e.name)}</b> <span class="mu">${e.bw!=='none'?'BW-Modus':''}</span>${hint?`<div class="hint">💡 ${esc(hint)}</div>`:''}${e.sets.map((s,j)=>`<div class="set ${s.done?'dn':''} ${s.skip?'sk':''}"><span class="mu">${j+1}</span>${hw?`<label><small>${wl}</small><input inputmode="decimal" value="${cv(s.w,u)}" data-change="sw" data-ex="${i}" data-id="${j}"></label>`:'<span></span>'}<label><small>Wiederholungen</small><input inputmode="numeric" value="${s.r}" data-change="sr" data-ex="${i}" data-id="${j}"></label><button class="b ${s.done?'':'b2'}" data-action="done" data-ex="${i}" data-id="${j}" aria-label="Satz ${j+1} abhaken">✓</button><button class="b b2" data-action="skip" data-ex="${i}" data-id="${j}" aria-label="Satz ${j+1} überspringen">⏭</button></div><div class="setx"><input class="rpe" inputmode="decimal" placeholder="RPE" title="RPE/RIR (0–10)" value="${s.rpe!=null?s.rpe:''}" data-change="srpe" data-ex="${i}" data-id="${j}" aria-label="RPE für Satz ${j+1}"><input placeholder="Notiz zum Satz (optional)" maxlength="140" value="${esc(s.note||'')}" data-change="snote" data-ex="${i}" data-id="${j}" aria-label="Notiz für Satz ${j+1}"></div>`).join('')}<div class="row w" style="margin-top:8px"><button class="b b2 sm" data-action="aset" data-ex="${i}">+ Satz</button><button class="b b2 sm" data-action="axdel" data-ex="${i}">Übung entfernen</button></div></div>`}).join('')+`<div class="row w"><button class="b b2" data-action="exmodal" data-id="active">+ Übung</button><button class="b" data-action="finish">Workout beenden</button><button class="b bd" data-action="cancelw">Abbrechen</button></div>`}
+ if(ui.sub==='routines'){const restOnlyDraft=ui.days.length===0&&ui.rest.length>0;
+  h+=`<div class="c"><div class="t">NEUE ROUTINE</div><label><small>Name der Routine${restOnlyDraft?' (optional bei reinen Ruhetagen)':''}</small><input id="rn" value="${esc(ui.rname)}" data-change="rname" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="z. B. Pull" maxlength="40"></label>
+  <small class="mu" style="display:block;margin:8px 0 4px">Trainingstage</small><div class="row">${DAYS.map((d,i)=>`<button class="b day-b sm ${ui.days.includes(i)?'on':''}" data-action="dtog" data-id="${i}" aria-pressed="${ui.days.includes(i)}" aria-label="${DAYF[i]} Training">${d}</button>`).join('')}</div>
+  <small class="mu" style="display:block;margin:8px 0 4px">🛌 Geplante Ruhetage (explizit)</small><div class="row">${DAYS.map((d,i)=>`<button class="b day-b sm ${ui.rest.includes(i)?'on rest':''}" data-action="rtog" data-id="${i}" aria-pressed="${ui.rest.includes(i)}" aria-label="${DAYF[i]} Ruhetag">${d}</button>`).join('')}</div>
+  <button class="b" style="margin-top:10px" data-action="addr">Routine anlegen</button></div>`;
+  h+=S.routines.length?S.routines.map(r=>{const restOnly=r.days.length===0;
+   return`<div class="c"><div class="row sp"><b>${esc(r.name)}</b><span class="mu">${r.days.map(d=>DAYS[d]).join(' ')||'Keine Tage'}</span></div>${(r.rest||[]).length?`<div class="wk">🛌 Ruhetage: ${r.rest.map(d=>DAYS[d]).join(' ')}</div>`:''}${restOnly?'<div class="mu" style="margin-top:6px">Reiner Ruhetag – keine Übungen.</div>':r.exercises.map(e=>`<div class="fr"><span>${esc(e.name)} <span class="mu">${exLine(e)}</span></span><button class="b b2 sm" data-action="delex" data-id="${r.id}" data-ex="${e.id}" aria-label="Übung löschen">✕</button></div>`).join('')}<div class="row w" style="margin-top:10px">${restOnly?'':`<button class="b" data-action="exmodal" data-id="${r.id}">+ Übung hinzufügen</button><button class="b b2" data-action="start" data-id="${r.id}">▶</button>`}<button class="b b2" data-action="delr" data-id="${r.id}" aria-label="Routine löschen">🗑</button></div></div>`}).join(''):'<div class="c empty"><span class="ic">🗂️</span>Noch keine Routinen angelegt.<br>Erstelle oben deine erste Routine.</div>'}
+ if(ui.sub==='history')h+=S.workoutLogs.length?S.workoutLogs.slice().reverse().slice(0,60).map(l=>`<div class="c"><div class="row sp"><b>${esc(l.name)}</b><span class="mu">${l.date}</span></div><div class="mu">${(l.exs||[]).map(e=>esc(e.name)+' ('+(e.sets||[]).length+')').join(', ')}</div><div class="row sp" style="margin-top:4px"><span>Volumen: ${Math.round(cv(volOf(l),gu()))} ${gu()}</span><button class="b bd sm" data-action="dellog" data-id="${l.id}" aria-label="Workout-Eintrag löschen">🗑 Löschen</button></div></div>`).join(''):'<div class="c empty"><span class="ic">📭</span>Noch keine Workouts geloggt.<br>Starte dein erstes Training im Tab „Today Workout".</div>';
+ return h}
+function vHab(){const t=ui.hd;let h=`<h2>Habits &amp; Food</h2><div class="tabs"><button class="b sm ${ui.hs==='habits'?'on':''}" data-action="hsub" data-id="habits">Habits</button><button class="b sm ${ui.hs==='food'?'on':''}" data-action="hsub" data-id="food">Food</button></div>`;
+ if(ui.hs==='habits'){h+=`<label><small>Datum</small><input type="date" value="${ui.hd}" data-change="hdate"></label><button class="b" data-action="habmodal" style="margin:12px 0">+ Habit</button>`;
+  CATS.forEach(c=>{const l=S.habits.list.filter(x=>x.cat===c).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));if(!l.length)return;
+   h+=`<div class="c"><div class="t">${c}</div>`+l.map(x=>{const v=hv(t,x.id),u=x.unit,q=STEP[u];
+    const ctl=q?`<button class="b b2 sm" data-action="hstep" data-id="${x.id}" data-dir="-1" aria-label="${esc(x.name)} weniger">-${q}</button><input type="number" inputmode="decimal" step="any" min="0" data-nonneg="1" value="${fmt(v||0)}" data-change="hval" data-id="${x.id}" aria-label="${esc(x.name)} Wert in ${UL[u]}" style="width:88px;padding:6px"><span class="mu" style="flex:none">${UL[u]}</span><button class="b sm" data-action="hstep" data-id="${x.id}" data-dir="1" aria-label="${esc(x.name)} mehr">+${q}</button>`:`<button class="b ${v?'':'b2'} sm" data-action="htog" data-id="${x.id}" aria-label="${esc(x.name)} abhaken">${v?'✅':'⬜'}</button>`;
+    const hi=q&&x.target>0?hinfo(x,v):null,wk=x.freq==='weekly'?weekCount(x.id):null;
+    return`<div class="fr" ${q?'style="flex-wrap:wrap"':''}><span ${q?'style="flex:1 1 100%"':''}>${esc(x.emoji)} ${esc(x.name)}${x.time?`<b class="tm">${esc(x.time)}</b>`:''}${wk!=null?`<span class="wk" id="wc${x.id}">${wk}/${x.wtarget} diese Woche${wk>=x.wtarget?' ✅':''}</span>`:''}</span>${hi?`<span class="mu" id="hl${x.id}" style="flex:1 1 100%">${hi.txt}</span><div class="bar" style="flex:1 1 100%"><i id="hb${x.id}" style="width:${hi.p}%;background:${hi.ok?'var(--ac)':'var(--yl)'}"></i></div>`:''}${ctl}<button class="b b2 sm" data-action="edith" data-id="${x.id}" aria-label="Habit bearbeiten">✏️</button><button class="b b2 sm" data-action="delh" data-id="${x.id}" aria-label="Habit löschen">✕</button></div>`}).join('')+'</div>'});
+  if(!S.habits.list.length)h+='<div class="c empty"><span class="ic">✅</span>Noch keine Habits.<br>Lege dein erstes Habit an – täglich oder X-mal pro Woche.</div>'}
+ else{const f=S.food[ui.fd]||{};h+=`<label><small>Datum</small><input type="date" value="${ui.fd}" data-change="fdate"></label><div style="height:10px"></div>`+MEALS.map((m,i)=>`<div class="c"><div class="t">${m}</div>${(f[m]||[]).length?(f[m]||[]).map(x=>`<div class="fr"><span>${esc(x.name)}</span><span class="mu" style="flex:none">${esc(x.g)} g</span>${x.done?'':`<button class="b sm" data-action="fdone" data-id="${x.id}" data-meal="${m}" aria-label="Eintragen">✓</button>`}<button class="b b2 sm" data-action="fdel" data-id="${x.id}" data-meal="${m}" aria-label="Löschen">✕</button></div>`).join(''):'<div class="mu" style="padding:4px 0">Noch nichts eingetragen.</div>'}<div class="row" style="margin-top:8px;align-items:end"><label style="flex:2"><small>Lebensmittel</small><input id="fn${i}" maxlength="40"></label><label style="flex:1"><small>Gramm</small><input id="fg${i}" inputmode="decimal"></label><button class="b" data-action="fadd" data-id="${i}" aria-label="Hinzufügen">+</button></div></div>`).join('')}
+ return h}
+function vCal(){const n=new Date();n.setDate(1);n.setMonth(n.getMonth()+ui.cm);const y=n.getFullYear(),m=n.getMonth(),dim=new Date(y,m+1,0).getDate(),off=wdi(n),t=dk();
+ let c=DAYS.map(d=>`<b>${d}</b>`).join('')+'<span></span>'.repeat(off);
+ for(let d=1;d<=dim;d++){const k=y+'-'+pad(m+1)+'-'+pad(d);c+=`<button class="cd ${st(k)} ${k===t?'today':''}" data-action="day" data-date="${k}">${d}</button>`}
+ return`<h2>Kalender</h2><div class="c"><div class="row sp"><button class="b b2 sm" data-action="cm" data-id="-1" aria-label="Voriger Monat">‹</button><b>${n.toLocaleDateString('de-DE',{month:'long',year:'numeric'})}</b><button class="b b2 sm" data-action="cm" data-id="1" aria-label="Nächster Monat">›</button></div><div class="cal" style="margin-top:10px">${c}</div></div>
+ <div class="c"><div class="t">LEGENDE</div><div class="g2"><span>🟢 Completed Workout</span><span>🔵 Rest Day</span><span>🟡 Partial</span><span>🔴 Missed</span><span>⚪ None</span></div></div>`}
+function vProg(){const ws=weekStart(),wl=S.workoutLogs.filter(l=>l.date>=ws),vol=wl.reduce((a,l)=>a+volOf(l),0),pb={};
+ S.workoutLogs.forEach(l=>(l.exs||[]).forEach(e=>(e.sets||[]).forEach(s=>{if(s.done===false)return;const L=load(e,s.w),r=+s.r||0,p=pb[e.name]||(pb[e.name]={w:0,r:0,e:0});p.w=Math.max(p.w,L);p.r=Math.max(p.r,r);p.e=Math.max(p.e,L*(1+r/30))})));
+ const u=gu(),wv=weeklyVolSeries().map(v=>Math.round(cv(v,u))),bwPts=bwSeries().map(p=>({d:p.d,v:+cv(p.v,u).toFixed(1)}));
+ const pbRows=Object.keys(pb).sort().map(n=>{const p=pb[n];return '<div class="fr"><span>'+esc(n)+'</span><span class="mu">'+Math.round(cv(p.w,u))+' '+u+' × '+p.r+' · e1RM '+Math.round(cv(p.e,u))+' '+u+'</span></div>'}).join('');
+ return`<h2>Progress</h2><div class="g2"><div class="c"><div class="t">WOCHENVOLUMEN</div><div class="val" style="text-align:left">${Math.round(cv(vol,u))} ${u}</div></div><div class="c"><div class="t">WORKOUTS (WOCHE)</div><div class="val" style="text-align:left">${wl.length}</div></div></div>
+ <div class="c"><div class="t">WOCHENVOLUMEN-VERLAUF (8 WOCHEN)</div>${wv.some(v=>v>0)?svgLine(wv,v=>v+' '+u):'<div class="mu">Noch nicht genug Daten für einen Verlauf.</div>'}</div>
+ <div class="c"><div class="t">KÖRPERGEWICHT-VERLAUF</div>${bwPts.length>1?svgLineDated(bwPts,v=>v+' '+u):'<div class="mu">Trage dein Körpergewicht unter ⚙️ Einstellungen ein, um einen Verlauf zu sehen.</div>'}</div>
+ <div class="c"><div class="t">PERSÖNLICHE BESTLEISTUNGEN</div>${pbRows||'<div class="mu">Noch keine Sätze abgeschlossen.</div>'}</div>
+ <div class="c"><div class="t">1RM-RECHNER</div><div class="row w"><label style="flex:1"><small>Gewicht (${u})</small><input inputmode="decimal" value="${esc(ui.rm.w)}" data-change="rmw"></label><label style="flex:1"><small>Wiederholungen</small><input inputmode="numeric" value="${esc(ui.rm.r)}" data-change="rmr"></label></div><div id="rmOut" style="margin-top:8px">${rmOutput(u)}</div></div>`}
+/* ---------- Modals ---------- */
+function mSettings(){const s=S.settings,u=gu();
+ return`<h3>⚙️ Einstellungen</h3>
+ <label><small>Einheit</small><select data-change="unit"><option value="kg" ${u==='kg'?'selected':''}>kg</option><option value="lbs" ${u==='lbs'?'selected':''}>lbs</option></select></label>
+ <label><small>Design</small><select data-change="theme"><option value="dark" ${s.theme==='dark'?'selected':''}>Dunkel</option><option value="light" ${s.theme==='light'?'selected':''}>Hell</option></select></label>
+ <label><small>Pausenzeit Timer (Sekunden)</small><input type="number" inputmode="numeric" value="${s.rest}" data-change="rest"></label>
+ <label><small>Körpergewicht heute (${u})</small><input inputmode="decimal" value="${cv(curBW(),u)}" data-change="bw"></label>
+ <label><small>Wochenziel (Workouts)</small><input type="number" inputmode="numeric" value="${s.goal}" data-change="goal"></label>
+ <div class="row w" style="margin-top:12px"><button class="b b2 sm" data-action="export">⬇ Backup exportieren</button><button class="b b2 sm" data-action="import">⬆ Backup importieren</button></div>
+ <p class="mu" style="font-size:12px;margin-top:10px">Cloud-Sync ist aktuell nicht aktiv. Nutze Export/Import, um deine Daten zu sichern oder zu übertragen.</p>
+ <input type="file" id="impfile" accept="application/json" style="display:none">`}
+function mExercise(target){const isActive=target==='active';
+ return`<h3>+ Übung hinzufügen</h3>
+ <input type="hidden" id="exTarget" value="${esc(target)}">
+ <label><small>Name</small><input id="exName" maxlength="40" placeholder="z. B. Kniebeuge"></label>
+ <label><small>Einheit</small><select id="exUnit"><option value="kg">kg</option><option value="lbs">lbs</option><option value="reps">Reps</option><option value="none">Keine</option></select></label>
+ <label><small>Körpergewicht-Modus</small><select id="exBw"><option value="none">Kein</option><option value="bw">Nur Körpergewicht</option><option value="plus">BW + Zusatzgewicht</option><option value="minus">BW − Abzug</option></select></label>
+ ${isActive?'':'<label><small>Sätze</small><input id="exSets" type="number" value="3"></label><label><small>Wiederholungen</small><input id="exReps" type="number" value="10"></label><label><small>Startgewicht</small><input id="exW" inputmode="decimal" value="0"></label>'}
+ <button class="b" style="margin-top:10px" data-action="exadd">Hinzufügen</button>`}
+function mHabit(id){const x=id?S.habits.list.find(h=>h.id===id):null;
+ return`<h3>${x?'Habit bearbeiten':'+ Neues Habit'}</h3>
+ <input type="hidden" id="habId" value="${x?x.id:''}">
+ <label><small>Name</small><input id="habName" maxlength="30" value="${x?esc(x.name):''}" placeholder="z. B. Wasser trinken"></label>
+ <small class="mu" style="display:block;margin:8px 0 4px">Emoji</small>
+ <div class="emo">${EMO.map(e=>`<button type="button" class="${x&&x.emoji===e?'on':''}" data-pick-emoji="${e}" aria-label="Emoji ${e}">${e}</button>`).join('')}</div>
+ <input type="hidden" id="habEmoji" value="${x?esc(x.emoji):'✅'}">
+ <label><small>Kategorie</small><select id="habCat">${CATS.map(c=>`<option ${x&&x.cat===c?'selected':''}>${c}</option>`).join('')}</select></label>
+ <label><small>Uhrzeit (optional)</small><input type="time" id="habTime" value="${x?x.time:''}"></label>
+ <label><small>Einheit</small><select id="habUnit"><option value="check" ${!x||x.unit==='check'?'selected':''}>Abhaken</option>${Object.keys(STEP).map(u=>`<option value="${u}" ${x&&x.unit===u?'selected':''}>${UL[u]}</option>`).join('')}</select></label>
+ <label><small>Tagesziel (bei Mengeneinheit)</small><input id="habTarget" type="number" inputmode="decimal" step="any" min="0" data-nonneg="1" value="${x?x.target:0}"></label>
+ <label><small>Häufigkeit</small><select id="habFreq"><option value="daily" ${!x||x.freq==='daily'?'selected':''}>Täglich</option><option value="weekly" ${x&&x.freq==='weekly'?'selected':''}>X-mal pro Woche</option></select></label>
+ <label><small>Ziel pro Woche (falls X-mal/Woche)</small><input id="habWTarget" type="number" min="1" max="7" data-nonneg="1" value="${x?x.wtarget:3}"></label>
+ <button class="b" style="margin-top:10px" data-action="habsave">Speichern</button>`}
+function mDay(k){const logs=S.workoutLogs.filter(l=>l.date===k),note=(S.calendar[k]||{}).note||'';
+ return`<h3>${k}</h3>${logs.length?logs.map(l=>`<div class="fr"><span>${esc(l.name)}</span><span class="mu">Vol. ${Math.round(cv(volOf(l),gu()))} ${gu()}</span></div>`).join(''):'<div class="mu">Kein Workout an diesem Tag.</div>'}
+ <label><small>Notiz</small><textarea data-change="daynote" data-date="${k}" rows="3">${esc(note)}</textarea></label>`}
+/* ---------- Rendering ---------- */
+const NAVI=[['home','🏠','Home'],['workouts','🏋️','Workouts'],['habits','✅','Habits'],['calendar','📅','Kalender'],['progress','📈','Progress']];
+function renderNav(){$('nav').innerHTML=NAVI.map(([id,ic,lb])=>`<button class="${ui.tab===id?'on':''}" data-action="nav" data-id="${id}" aria-label="${lb}"><span>${ic}</span>${lb}</button>`).join('')}
+function applyTheme(){document.documentElement.setAttribute('data-theme',S.settings.theme==='light'?'light':'dark')}
+/* Bug 2: Der Wert des Routinen-Namen-Felds wird NICHT nur über das
+   HTML-Attribut value="..." gesetzt (das iOS Safari nach einem DOM-Rebuild
+   gelegentlich mit einem zwischengespeicherten Formularwert überschreibt),
+   sondern zusätzlich direkt als DOM-Property synchronisiert. So ist der
+   Feldinhalt nach jedem render() garantiert deckungsgleich mit ui.rname -
+   ganz ohne Timing-Lücke. */
+function syncRnameInput(){const rn=$('rn');if(rn&&rn.value!==ui.rname)rn.value=ui.rname}
+function openModal(html){$('sheet').innerHTML=html+'<div style="margin-top:14px"><button class="b b2" data-action="close">Schließen</button></div>';$('modal').classList.add('show')}
+function closeModal(){$('modal').classList.remove('show');$('sheet').innerHTML=''}
+function render(){renderNav();const views={home:vHome,workouts:vWork,habits:vHab,calendar:vCal,progress:vProg};
+ const main=$('main'),st=main.scrollTop;
+ const modal=$('modal'),sheet=$('sheet'),modalOpen=modal.classList.contains('show'),sheetSt=modalOpen?sheet.scrollTop:0;
+ main.innerHTML=(views[ui.tab]||vHome)();
+ main.scrollTop=st;
+ if(modalOpen)sheet.scrollTop=sheetSt;
+ syncRnameInput();
+ applyTheme();tickClock();renderTimerBar()}
+function tickClock(){const n=new Date(),c=$('clk'),d=$('dt');if(c)c.textContent=pad(n.getHours())+':'+pad(n.getMinutes());if(d)d.textContent=n.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}
+setInterval(tickClock,1000);
+/* ---------- Timer (Pausen-Countdown) ---------- */
+function startTimer(sec){sec=sec||S.settings.rest||90;S.timer={orig:sec*1000,dur:sec*1000,end:Date.now()+sec*1000,paused:null,fired:false};save();renderTimerBar()}
+function pauseTimer(){if(!S.timer||S.timer.end==null)return;S.timer.paused=Math.max(0,S.timer.end-Date.now());S.timer.end=null;save();renderTimerBar()}
+function resumeTimer(){if(!S.timer||S.timer.paused==null)return;S.timer.end=Date.now()+S.timer.paused;S.timer.paused=null;save();renderTimerBar()}
+function hideTimerBar(){const b=$('tbar');b.classList.remove('show','flash');b.innerHTML='';ensureTimerLoop()}
+/* Bug 8/4: Statt eines permanent laufenden setInterval (das auch tickt, wenn
+   gar kein Timer aktiv oder der Timer pausiert ist) wird der Interval-Loop
+   nur genau dann gestartet, wenn wirklich ein laufender (nicht pausierter)
+   Timer existiert, und andernfalls sofort wieder gestoppt. ensureTimerLoop()
+   ist idempotent (erzeugt nie ein zweites Interval, solange timerHandle
+   gesetzt ist) und wird von hideTimerBar() aus JEDEM Aufrufpfad erreicht -
+   dadurch kann kein Codepfad mehr einen verwaisten Interval-Handle
+   hinterlassen. */
+let timerHandle=null;
+function ensureTimerLoop(){
+ const need=!!(S.timer&&S.timer.paused==null);
+ if(need){if(!timerHandle)timerHandle=setInterval(timerTick,250)}
+ else if(timerHandle){clearInterval(timerHandle);timerHandle=null}
+}
+function renderTimerBar(){const t=S.timer,b=$('tbar');if(!t){hideTimerBar();return}
+ b.classList.add('show');
+ const remaining=t.paused!=null?t.paused:Math.max(0,t.end-Date.now()),sc=Math.ceil(remaining/1000),mm=pad(Math.floor(sc/60)),ss=pad(sc%60);
+ b.innerHTML=`<div class="row sp"><b id="tt">⏱ ${mm}:${ss}</b><div class="row"><button class="b b2 sm" data-action="tplus">+15s</button><button class="b b2 sm" data-action="${t.paused!=null?'tresume':'tpause'}" aria-label="${t.paused!=null?'Fortsetzen':'Pausieren'}">${t.paused!=null?'▶':'⏸'}</button><button class="b bd sm" data-action="tskip" aria-label="Timer beenden">✕</button></div></div>`;
+ ensureTimerLoop()}
+function timerTick(){const t=S.timer;if(!t||t.paused!=null){ensureTimerLoop();return}
+ const remaining=t.end-Date.now();
+ if(remaining<=0&&!t.fired){t.fired=true;save();const b=$('tbar');if(b)b.classList.add('flash');toast('⏱ Pause vorbei!');if(navigator.vibrate){try{navigator.vibrate(200)}catch(e){}}
+  /* Nach der kurzen Blink-Phase Timer komplett zurücksetzen, statt die
+     Bar unbegrenzt bei 00:00 stehen zu lassen. */
+  setTimeout(()=>{if(S.timer&&S.timer.fired){S.timer=null;save()}hideTimerBar()},3200)}
+ const el=$('tt');if(el){const sc=Math.max(0,Math.ceil(remaining/1000)),mm=pad(Math.floor(sc/60)),ss=pad(sc%60);el.textContent='⏱ '+mm+':'+ss}}
+/* ---------- Workout actions ---------- */
+function startWorkout(rid){if(S.activeWorkout){toast('Es läuft bereits ein Workout.');ui.tab='workouts';ui.sub='log';render();return}
+ let name='Freies Workout',exs=[];
+ if(rid!=='free'){const r=S.routines.find(x=>x.id===rid);if(!r){toast('Routine nicht gefunden');return}
+  name=r.name;exs=r.exercises.map(e=>({name:e.name,unit:e.unit,bw:e.bw,sets:Array.from({length:e.sets},()=>({w:e.w,r:e.reps,rpe:null,note:'',done:false,skip:false}))}))}
+ S.activeWorkout={date:dk(),start:Date.now(),rid,name,exs};save();ui.tab='workouts';ui.sub='log';render();toast('Workout gestartet 💪')}
+function finishWorkout(){const a=S.activeWorkout;if(!a)return;
+ if(!a.exs.some(e=>e.sets.some(s=>s.done))){toast('Noch keine Sätze abgeschlossen.');return}
+ S.workoutLogs.push({id:uid(),date:a.date,name:a.name,start:a.start,end:Date.now(),exs:a.exs});
+ S.activeWorkout=null;S.timer=null;save();hideTimerBar();ui.sub='history';render();toast('Workout gespeichert ✅')}
+/* ---------- Event delegation ---------- */
+function handleClick(e){
+ const emo=e.target.closest('[data-pick-emoji]');
+ if(emo){$('habEmoji').value=emo.getAttribute('data-pick-emoji');emo.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('on'));emo.classList.add('on');return}
+ const b=e.target.closest('[data-action]');if(!b)return;
+ const ds=b.dataset,id=ds.id,today=dk();
+ switch(ds.action){
+  case 'nav': ui.tab=id; render(); break;
+  case 'sub': ui.sub=id; if(ds.tab)ui.tab=ds.tab; render(); break;
+  case 'hsub': ui.hs=id; render(); break;
+  case 'gear': openModal(mSettings()); break;
+  case 'close': closeModal(); break;
+  case 'start': startWorkout(id); break;
+  case 'finish': finishWorkout(); break;
+  case 'cancelw': if(confirm('Workout wirklich abbrechen?')){S.activeWorkout=null;S.timer=null;save();hideTimerBar();ui.sub='today';render()} break;
+  case 'water':{S.water[today]=Math.max(0,fmt((S.water[today]||0)+parseFloat(id)));save();const el=$('valWater');if(el)el.textContent=fmt(S.water[today])+' l';else render();break}
+  case 'sleep':{S.sleep[today]=Math.max(0,(S.sleep[today]||0)+parseInt(id));save();const el=$('valSleep');if(el)el.textContent=S.sleep[today]+' Std';else render();break}
+  case 'steps':{S.steps[today]=Math.max(0,(S.steps[today]||0)+parseInt(id));save();const el=$('valSteps');if(el)el.textContent=fmtn(S.steps[today]);else render();break}
+  case 'dtog':{const i=+id;ui.days=ui.days.includes(i)?ui.days.filter(x=>x!==i):[...ui.days,i];ui.rest=ui.rest.filter(x=>x!==i);render();break}
+  case 'rtog':{const i=+id;if(ui.days.includes(i))break;ui.rest=ui.rest.includes(i)?ui.rest.filter(x=>x!==i):[...ui.rest,i];render();break}
+  case 'addr':{const nm=(ui.rname||'').trim(),restOnly=ui.days.length===0&&ui.rest.length>0;
+   if(!ui.days.length&&!ui.rest.length){toast('Bitte mindestens einen Tag wählen');break}
+   if(!nm&&!restOnly){toast('Bitte Namen eingeben');break}
+   S.routines.push({id:uid(),name:nm||'Ruhetag',days:[...ui.days],rest:[...ui.rest],exercises:[]});
+   ui.days=[];ui.rest=[];ui.rname='';save();render();toast('Routine angelegt');break}
+  case 'delr': if(confirm('Routine wirklich löschen?')){S.routines=S.routines.filter(r=>r.id!==id);save();render()} break;
+  case 'delex':{const r=S.routines.find(x=>x.id===id);if(r){r.exercises=r.exercises.filter(e=>e.id!==ds.ex);save();render()}break}
+  case 'exmodal': openModal(mExercise(id)); break;
+  case 'exadd':{const target=$('exTarget').value,name=($('exName').value||'').trim();if(!name){toast('Bitte Namen eingeben');break}
+   const unit=$('exUnit').value,bwm=$('exBw').value;
+   if(target==='active'){const a=S.activeWorkout;if(!a)break;a.exs.push({name,unit,bw:bwm,sets:[{w:0,r:0,rpe:null,note:'',done:false,skip:false}]})}
+   else{const r=S.routines.find(x=>x.id===target);if(!r)break;const sets=Math.max(1,parseInt($('exSets').value)||1),reps=Math.max(0,parseInt($('exReps').value)||0),wv=fk($('exW').value,gu()),w=wv==null?0:wv;r.exercises.push({id:uid(),name,unit,bw:bwm,w,sets,reps})}
+   save();closeModal();render();toast('Übung hinzugefügt');break}
+  case 'aset':{const a=S.activeWorkout,ex=a.exs[+ds.ex],last=ex.sets[ex.sets.length-1];ex.sets.push({w:last?last.w:0,r:last?last.r:0,rpe:null,note:'',done:false,skip:false});save();render();break}
+  case 'axdel':{const a=S.activeWorkout;a.exs.splice(+ds.ex,1);save();render();break}
+  case 'done':{const a=S.activeWorkout,ex=a.exs[+ds.ex],s=ex.sets[+ds.id];s.done=!s.done;if(s.done){s.skip=false;startTimer()}save();render();break}
+  case 'skip':{const a=S.activeWorkout,ex=a.exs[+ds.ex],s=ex.sets[+ds.id];s.skip=!s.skip;if(s.skip)s.done=false;save();render();break}
+  case 'habmodal': openModal(mHabit(null)); break;
+  case 'edith': openModal(mHabit(id)); break;
+  case 'delh': if(confirm('Habit wirklich löschen?')){S.habits.list=S.habits.list.filter(h=>h.id!==id);save();render()} break;
+  case 'habsave':{const hid=$('habId').value,name=($('habName').value||'').trim();if(!name){toast('Bitte Namen eingeben');break}
+   const data={name,emoji:$('habEmoji').value||'✅',cat:oneOf($('habCat').value,CATS,'Anytime'),time:$('habTime').value||'',unit:oneOf($('habUnit').value,['check',...Object.keys(STEP)],'check'),target:Math.max(0,num($('habTarget').value,0)),freq:oneOf($('habFreq').value,['daily','weekly'],'daily'),wtarget:Math.min(7,Math.max(1,parseInt($('habWTarget').value)||3))};
+   if(hid){const h=S.habits.list.find(x=>x.id===hid);if(h)Object.assign(h,data)} else S.habits.list.push({id:uid(),...data});
+   save();closeModal();render();toast('Gespeichert');break}
+  case 'hstep':{const x=S.habits.list.find(h=>h.id===id);if(!x)break;const k=ui.hd,cur=hv(k,x.id)||0,q=STEP[x.unit]||1,dir=+ds.dir;
+   S.habits.log[k]=S.habits.log[k]||{};S.habits.log[k][x.id]=Math.max(0,+(cur+q*dir).toFixed(2));save();render();break}
+  case 'htog':{const k=ui.hd;S.habits.log[k]=S.habits.log[k]||{};S.habits.log[k][id]=!S.habits.log[k][id];save();render();break}
+  case 'fadd':{const i=+id,m=MEALS[i],nEl=$('fn'+i),gEl=$('fg'+i),name=(nEl.value||'').trim(),gRaw=(gEl.value||'').trim();
+   if(!name){toast('Bitte Namen eingeben');break}
+   if(gRaw===''){toast('Bitte Gramm eingeben');break}
+   const g=Math.max(0,num(gRaw,0));
+   S.food[ui.fd]=S.food[ui.fd]||{};S.food[ui.fd][m]=S.food[ui.fd][m]||[];S.food[ui.fd][m].push({id:uid(),name,g,done:true});save();render();break}
+  case 'fdone':{const arr=(S.food[ui.fd]&&S.food[ui.fd][ds.meal])||[],x=arr.find(y=>y.id===id);if(x)x.done=true;save();render();break}
+  case 'fdel':{if(S.food[ui.fd]&&S.food[ui.fd][ds.meal])S.food[ui.fd][ds.meal]=S.food[ui.fd][ds.meal].filter(y=>y.id!==id);save();render();break}
+  case 'day': openModal(mDay(ds.date)); break;
+  case 'cm': ui.cm+=parseInt(id); render(); break;
+  case 'tpause': pauseTimer(); break;
+  case 'tresume': resumeTimer(); break;
+  case 'tskip': S.timer=null; save(); hideTimerBar(); break;
+  case 'tplus': if(S.timer){S.timer.dur+=15000;if(S.timer.end!=null)S.timer.end+=15000;else S.timer.paused=(S.timer.paused||0)+15000;save();renderTimerBar()} break;
+  case 'export':{const blob=new Blob([JSON.stringify(S)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='momentum-backup-'+dk()+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('Backup exportiert');break}
+  case 'import':{const f=$('impfile'); if(f)f.click(); break}
+  case 'dellog': if(confirm('Diesen Workout-Eintrag wirklich löschen?')){S.workoutLogs=S.workoutLogs.filter(l=>l.id!==id);save();render();toast('Eintrag gelöscht')} break;
+ }
+}
+function onDataChange(e){const el=e.target,dc=el.dataset&&el.dataset.change;if(!dc)return;const u=gu();
+ switch(dc){
+  case 'sw':{const a=S.activeWorkout;if(!a)break;const ex=a.exs[+el.dataset.ex],s=ex.sets[+el.dataset.id],v=fk(el.value,u);if(v!=null)s.w=v;dsave();break}
+  case 'sr':{const a=S.activeWorkout;if(!a)break;const ex=a.exs[+el.dataset.ex],s=ex.sets[+el.dataset.id];if(el.value!=='')s.r=Math.max(0,parseInt(el.value)||0);dsave();break}
+  case 'srpe':{const a=S.activeWorkout;if(!a)break;const ex=a.exs[+el.dataset.ex],s=ex.sets[+el.dataset.id],raw=String(el.value).trim();if(raw===''){s.rpe=null}else{const v=parseFloat(raw.replace(',','.'));if(isFinite(v))s.rpe=Math.min(10,Math.max(0,Math.round(v*2)/2))}dsave();break}
+  case 'snote':{const a=S.activeWorkout;if(!a)break;const ex=a.exs[+el.dataset.ex],s=ex.sets[+el.dataset.id];s.note=el.value.slice(0,140);dsave();break}
+  case 'rname': ui.rname=el.value; break;
+  case 'hdate':{const v=el.value||dk();if(v>dk()){ui.hd=dk();toast('Zukünftiges Datum – auf heute gesetzt')}else{ui.hd=v}render();break}
+  case 'fdate': ui.fd=el.value||dk(); render(); break;
+  case 'hval':{const x=S.habits.list.find(h=>h.id===el.dataset.id);if(!x)break;const k=ui.hd;S.habits.log[k]=S.habits.log[k]||{};if(el.value!=='')S.habits.log[k][x.id]=Math.max(0,num(el.value,0));dsave();hupd(x.id);break}
+  case 'daynote':{const k=el.dataset.date;S.calendar[k]=S.calendar[k]||{note:''};S.calendar[k].note=el.value;dsave();break}
+  case 'unit': S.settings.unit=el.value; save(); render(); break;
+  case 'theme': S.settings.theme=el.value; applyTheme(); save(); break;
+  case 'rest': if(el.value!=='')S.settings.rest=Math.min(600,Math.max(5,parseInt(el.value)||90)); dsave(); break;
+  case 'bw':{const v=fk(el.value,u);if(v!=null){S.bodyweight[dk()]=v}dsave();break}
+  case 'goal': if(el.value!=='')S.settings.goal=Math.min(14,Math.max(1,parseInt(el.value)||4)); dsave(); break;
+  /* 1RM-Rechner: reiner UI-Zustand (nicht in S), daher kein save()/dsave() -
+     nur das Ergebnis-Div wird direkt aktualisiert, damit der Eingabe-Fokus
+     beim Tippen erhalten bleibt. */
+  case 'rmw': ui.rm.w=el.value; updateRmOut(); break;
+  case 'rmr': ui.rm.r=el.value; updateRmOut(); break;
+ }}
+/* ---------- Init ---------- */
+function init(){
+ applyTheme();
+ document.addEventListener('click',handleClick);
+ /* input/change-Dedupe: 'input' feuert bei jedem Tastendruck, 'change' beim
+    Verlassen des Feldes (blur) - für Text-/Zahlenfelder oft mit demselben
+    Endwert. Damit dieselbe Eingabe nicht zweimal verarbeitet wird, merken
+    wir uns pro Feld+data-change den zuletzt verarbeiteten Wert. Trotzdem
+    wird bei 'change' IMMER ein sofortiges, ungedebountes save() ausgelöst,
+    damit beim Verlassen des Feldes garantiert nichts verloren geht. */
+ const RM_KEYS=['rmw','rmr','rname'];
+ document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t&&t.dataset&&t.dataset.nonneg&&typeof t.value==='string'&&t.value.indexOf('-')!==-1){
+   const pos=t.selectionStart;t.value=t.value.replace(/-/g,'');
+   try{if(pos!=null)t.setSelectionRange(Math.max(0,pos-1),Math.max(0,pos-1))}catch(err){}
+  }
+  if(!t||!t.dataset||!t.dataset.change)return;
+  const key='_lv_'+t.dataset.change;
+  if(t[key]===t.value)return;
+  t[key]=t.value;
+  onDataChange(e);
+ });
+ document.addEventListener('change',e=>{
+  if(e.target&&e.target.id==='impfile'){const file=e.target.files&&e.target.files[0];if(!file)return;
+   const rd=new FileReader();rd.onload=()=>{try{const obj=JSON.parse(rd.result);S=migrate(obj);save();closeModal();render();toast('Backup importiert ✅')}catch(err){toast('Ungültige Datei')}};rd.readAsText(file);return}
+  const t=e.target;
+  if(t&&t.dataset&&t.dataset.nonneg&&typeof t.value==='string'&&t.value.indexOf('-')!==-1)t.value=t.value.replace(/-/g,'');
+  if(!t||!t.dataset||!t.dataset.change)return;
+  const key='_lv_'+t.dataset.change,already=t[key]===t.value;
+  t[key]=t.value;
+  if(!already)onDataChange(e);
+  if(!RM_KEYS.includes(t.dataset.change))save();
+  if(t.dataset.change==='hval'){const x=S.habits.list.find(h=>h.id===t.dataset.id);if(x)hupd(x.id)}
+ });
+ $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+ /* Robustes Speichern: 'change'/blur löst bereits ein sofortiges save()
+    aus (siehe change-Listener oben). Zusätzlich wird beim Wechsel des
+    Browser-Tabs bzw. beim Verlassen der Seite ein ungedebountes save()
+    erzwungen - so gehen auch Eingaben verloren, die noch im 300ms-
+    Debounce-Fenster hängen, wenn schnell weggewechselt wird. */
+ const flushSave=()=>{dsave.flush();save()};
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)flushSave()});
+ window.addEventListener('pagehide',flushSave);
+ window.addEventListener('blur',flushSave);
+ render();
+}
+init();
+</script>
+</body>
+</html>
